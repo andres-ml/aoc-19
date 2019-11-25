@@ -1,4 +1,5 @@
-from utils import compose, cmap, at, Text
+import text
+from utils import compose, cmap, at
 from functools import partial
 
 # Example problem
@@ -28,8 +29,8 @@ one = compose(
     cmap(compose(at('cookies'), at(1))),
     cmap(duplicateCookiesIfOdd),
     enumerate,
-    cmap(Text.toDict(ELF_SPEAK, ['name', 'cookies'], [id, int])),
-    Text.toLines
+    cmap(partial(text.toDict, ELF_SPEAK, {'name': str, 'cookies': int})),
+    text.toLines
 )
 
 sortByName = partial(sorted, key=lambda numberedElf: numberedElf[1]['name'])
@@ -44,6 +45,6 @@ two = compose(
     sortByName,
     cmap(duplicateCookiesIfOdd),
     enumerate,
-    cmap(Text.toDict(ELF_SPEAK, ['name', 'cookies'], [str, int])),
-    Text.toLines
+    cmap(partial(text.toDict, ELF_SPEAK, {'name': str, 'cookies': int})),
+    text.toLines
 )

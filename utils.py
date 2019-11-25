@@ -1,32 +1,21 @@
 from functools import reduce, partial
+from typing import Callable, Union, Any
 import re
 
-def compose(*functions):
+def compose(*functions) -> Callable:
     return lambda x: reduce(lambda carry, f: f(carry), reversed(functions), x)
 
-def cmap(function):
+def cmap(function : Callable) -> Callable:
     return partial(map, function)
 
-def invoker(method, *args):
+def invoker(method : str, *args) -> Callable:
     return lambda object: getattr(object, method)(*args)
 
-def at(index):
-    return lambda list: list[index]
+def at(index : Union[int, str]) -> Any:
+    return lambda indexable: indexable[index]
 
-class Text:
-
-    @staticmethod
-    def toLines(input):
-        return input.split('\n')
-
-    @staticmethod
-    def toDict(pattern, keys=None, parsers=None):
-        regex = re.compile(pattern)
-        if keys is None:
-            keys = range(regex.groups)
-        if parsers is None:
-            parsers = [id for _ in range(regex.groups)]
-        def _toDict(line):
-            match = regex.match(line)
-            return {key: parsers[index](match.group(index + 1)) for index, key in enumerate(keys)}
-        return _toDict
+# build a function that takes some arguments and forwards the call to one of `solvers`, as chosen by
+# calling the key function with those same arguments. E.g:
+# sum1IfOddElseSum3 = dispatcher(lambda n: 'odd' if isOdd(n) else 'even', {'odd': sum1, 'even': sum3})
+def dispatcher(key : Callable, solvers : list) -> Callable:
+    return lambda *args, **kargs: solvers[key(*args, **kargs)](*args, **kargs)
