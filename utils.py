@@ -42,5 +42,23 @@ def switch(key : Callable, solvers : list, default : Callable = identity) -> Cal
 # applies `step` over `state` as many times as necessary until `condition(state)` yields True
 def reduceUntil(condition : Callable, step : Callable, state : Any) -> Any:
     while not condition(state):
-        step(state)
+        state = step(state)
     return state
+
+# wraps function to be called with unpacked args
+def unpack(function):
+    return unpackWith(identity, function)
+
+# similar to useWith, except there's only 1 callback that takes the same arguments as the original function
+# but returns a single argument to be unpacked and used for the function.
+def unpackWith(unpacker : Callable, function : Callable):
+    return lambda *args, **kargs: function(*unpacker(*args, **kargs))
+    
+# parse list of properties into a dictionary of properties as defined by `pattern`
+# e.g.:
+#   builder = dictBuilder({'apples': int, 'pears': int})
+#   builder([1, '2']) -> {'apples': 1, 'pears': 2}  (note that 2 is an integer now)
+def dictBuilder(properties : dict) -> dict:
+    def builder(indexable):
+        return {key: parser(indexable[index]) for index, (key, parser) in enumerate(properties.items())}
+    return builder
