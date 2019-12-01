@@ -64,3 +64,7 @@ def dictBuilder(properties : dict) -> dict:
     def builder(indexable):
         return {key: parser(indexable[index]) for index, (key, parser) in enumerate(properties.items())}
     return builder
+
+# partial operator. 'name' should be an operator lib function (add, floordiv, gt, etc)
+def operation(name : str, b):
+    return lambda a : getattr(operator, name)(a, b)
