@@ -1,8 +1,10 @@
 from functools import reduce, partial
 from typing import Callable, Union, Any
 import re
+import operator
 
 identity = lambda x : x
+always = lambda x : lambda *args : x
 
 # function composition. first function may have any arity; the rest must be unary
 def compose(*functions) -> Callable:
@@ -31,9 +33,9 @@ def paramAt(index : int):
 
 # switch-case as a function. key provides the use case key, `solvers` the callbacks, indexed by use case.
 # E.g:
-#   multiplyIfEven = switch(lambda n: n % 2: [lambda n: n * 2])
+#   multiplyIfEven = switch(lambda n: n % 2: {0: lambda n: n * 2})
 #   map(multiplyIfEven, [1,2,3]) -> [1,4,3]
-def switch(key : Callable, solvers : list, default : Callable = identity) -> Callable:
+def switch(key : Callable, solvers : list, default : Callable = None) -> Callable:
     def f(*args, **kargs):
         case = key(*args, **kargs)
         return (solvers[case] if case in solvers else default)(*args, **kargs)
