@@ -43,9 +43,12 @@ def switch(key : Callable, solvers : list, default : Callable = None) -> Callabl
 
 # applies `step` over `state` as many times as necessary until `condition(state)` yields True
 def reduceUntil(condition : Callable, step : Callable, state : Any) -> Any:
-    while not condition(state):
-        state = step(state)
-    return state
+    return next(x for x in iterate(step, state) if condition(x))
+
+def iterate(function: Callable, item : Any) -> iter:
+    while True:
+        yield item
+        item = function(item)
 
 # wraps function to be called with unpacked args
 def unpack(function):
