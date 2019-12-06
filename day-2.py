@@ -8,7 +8,9 @@ TARGET = 19690720
 
 parse = compose(list, cmap(int), invoker('split', ','))
 
-run = lambda intcode: Runner.run(intcode)
+runner = Runner()
+
+run = lambda intcode: runner.run(intcode)
 alarm = lambda noun, verb: lambda intcode: intcode[:1] + [noun, verb] + intcode[3:]
 solve = lambda noun, verb: compose(at(0), run, alarm(noun, verb))
 findNounVerb = lambda target, intcode: next((noun, verb) for noun, verb in product(range(N), range(N)) if solve(noun, verb)(intcode) == target)

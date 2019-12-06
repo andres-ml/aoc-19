@@ -17,8 +17,11 @@ def cmap(function : Callable) -> Callable:
 def invoker(method : str, *args) -> Callable:
     return lambda object: getattr(object, method)(*args)
 
-def at(index : Union[int, str]) -> Any:
+def at(index : Union[int, str]) -> Callable:
     return lambda indexable: indexable[index]
+
+def attr(attribute : str) -> Callable:
+    return lambda object: getattr(object, attribute)
 
 # wraps `function` so that its arguments are transformed before calling it.
 # each argument at position `i` will be transformed by `callbacks[i]`, if defined.
