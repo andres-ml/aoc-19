@@ -74,3 +74,11 @@ def dictBuilder(properties : dict) -> dict:
 # partial operator. 'name' should be an operator lib function (add, floordiv, gt, etc)
 def operation(name : str, b):
     return lambda a : getattr(operator, name)(a, b)
+
+# wraps an unary function so that it executes with that argument but returns that same argument
+# instead of the execution return value. Useful to compose class method invocations.
+def within(function):
+    def inner(arg):
+        function(arg)
+        return arg
+    return inner

@@ -25,22 +25,36 @@ class Runner:
         methodArity = lambda method: len(getargspec(getattr(self, method))[0]) - 1
         self.instructionArities = {opcode: methodArity(name) for opcode, name in Runner.opcodeMap.items()}
     
+    # execute instructions until the program halts
     def run(self, intcode, pointer = 0):
         self.reset()
         while intcode[pointer] != Runner.HALT:
-            opcode, argModes = self.parseOpcode(intcode[pointer])
-            instruction, arity = Runner.opcodeMap[opcode], self.instructionArities[opcode]
-            pointer += 1
-            arguments = intcode[pointer : pointer + arity]
-            pointer += arity
-            value, movedPointer = getattr(self, instruction)(*[value if argModes[i] == Runner.MODE_IMMEDIATE else intcode[value] for i, value in enumerate(arguments)])
-            if value is not None:
-                intcode[intcode[pointer]] = value
-                pointer += 1
-            elif movedPointer is not None:
-                pointer = movedPointer
-            
+            intcode, pointer = self.execute(intcode, pointer)
         return intcode
+
+
+    # runs code and yields output values until it halts
+    def output_iterator(self, intcode, pointer = 0):
+        self.reset()
+        while intcode[pointer] != Runner.HALT:
+            intcode, pointer = self.execute(intcode, pointer)
+            if self.output:
+                yield self.output.pop()
+
+    # executes the instruction at pointer
+    def execute(self, intcode, pointer):
+        opcode, argModes = self.parseOpcode(intcode[pointer])
+        instruction, arity = Runner.opcodeMap[opcode], self.instructionArities[opcode]
+        pointer += 1
+        arguments = intcode[pointer : pointer + arity]
+        pointer += arity
+        value, movedPointer = getattr(self, instruction)(*[value if argModes[i] == Runner.MODE_IMMEDIATE else intcode[value] for i, value in enumerate(arguments)])
+        if value is not None:
+            intcode[intcode[pointer]] = value
+            pointer += 1
+        elif movedPointer is not None:
+            pointer = movedPointer
+        return intcode, pointer
 
     def parseOpcode(self, number):
         argModes = defaultdict(lambda: Runner.MODE_POSITIONAL)
@@ -56,6 +70,8 @@ class Runner:
     def reset(self):
         self.inputCursor = 0
         self.output = []
+
+    #####################################  operations ##########################################
     
     def add(self, x, y):
         return x + y, None
