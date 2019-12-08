@@ -82,3 +82,8 @@ def within(function):
         function(arg)
         return arg
     return inner
+
+# split list into chunks of size 'size'.
+# chunks(3, [1,2,3,4,5,6,7,8,9]) -> [[1,2,3], [4,5,6], [7,8,9]]
+def chunks(size : int, items : list) -> list :
+    return [items[i:i+size] for i in range(0, len(items), size)]
