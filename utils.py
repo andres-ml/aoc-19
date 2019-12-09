@@ -87,3 +87,24 @@ def within(function):
 # chunks(3, [1,2,3,4,5,6,7,8,9]) -> [[1,2,3], [4,5,6], [7,8,9]]
 def chunks(size : int, items : list) -> list :
     return [items[i:i+size] for i in range(0, len(items), size)]
+
+    
+# like defaultdict but with a list. Automatically extends the list length with the specified
+# factory() value as many positions as needed when getting or setting positions out of bounds (indices only, not slices)
+class defaultlist(list):
+
+    def __init__(self, factory = lambda : None, iterable = []):
+        self.factory = factory
+        self += list(iterable)
+
+    def __getitem__(self, index):
+        self.__fill(index)
+        return super().__getitem__(index)
+
+    def __setitem__(self, index, value):
+        self.__fill(index)
+        return super().__setitem__(index, value)
+
+    def __fill(self, index):
+        if isinstance(index, int):
+            self += [self.factory()] * max([0, index - len(self) + 1])

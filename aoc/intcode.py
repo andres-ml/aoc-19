@@ -1,3 +1,4 @@
+from utils import defaultlist
 from inspect import getargspec
 from collections import defaultdict
 
@@ -8,6 +9,9 @@ class Runner:
 
     MODE_POSITIONAL = 0
     MODE_IMMEDIATE = 1
+    MODE_RELATIVE = 2
+
+    MEMORY_DEFAULT_VALUE = 0
 
     opcodeMap = {
         1: 'add',
@@ -18,6 +22,7 @@ class Runner:
         6: 'jif',
         7: 'lt',
         8: 'eq',
+        9: 'adjust_relative_base',
     }
 
     def __init__(self, input = []):
@@ -28,6 +33,7 @@ class Runner:
     # execute instructions until the program halts
     def run(self, intcode, pointer = 0):
         self.reset()
+        intcode = defaultlist(lambda: Runner.MEMORY_DEFAULT_VALUE, intcode)
         while intcode[pointer] != Runner.HALT:
             intcode, pointer = self.execute(intcode, pointer)
         return intcode
@@ -43,20 +49,36 @@ class Runner:
 
     # executes the instruction at pointer
     def execute(self, intcode, pointer):
-        opcode, argModes = self.parseOpcode(intcode[pointer])
+        opcode, argModes = self.parse_opcode(intcode[pointer])
         instruction, arity = Runner.opcodeMap[opcode], self.instructionArities[opcode]
         pointer += 1
         arguments = intcode[pointer : pointer + arity]
         pointer += arity
-        value, movedPointer = getattr(self, instruction)(*[value if argModes[i] == Runner.MODE_IMMEDIATE else intcode[value] for i, value in enumerate(arguments)])
+        value, movedPointer = getattr(self, instruction)(*[self.mode_value(value, intcode, argModes[i]) for i, value in enumerate(arguments)])
         if value is not None:
-            intcode[intcode[pointer]] = value
+            intcode[self.mode_index(intcode[pointer], intcode, argModes[arity])] = value
             pointer += 1
         elif movedPointer is not None:
             pointer = movedPointer
         return intcode, pointer
 
-    def parseOpcode(self, number):
+    def mode_value(self, value, intcode, mode):
+        if mode == Runner.MODE_IMMEDIATE:
+            return value
+        elif mode == Runner.MODE_POSITIONAL:
+            return intcode[value]
+        elif mode == Runner.MODE_RELATIVE:
+            return intcode[value + self.relativeBase]
+        raise "Invalid read-from mode"
+
+    def mode_index(self, value, intcode, mode):
+        if mode == Runner.MODE_POSITIONAL:
+            return value
+        elif mode == Runner.MODE_RELATIVE:
+            return value + self.relativeBase
+        raise "Invalid write-to mode"
+
+    def parse_opcode(self, number):
         argModes = defaultdict(lambda: Runner.MODE_POSITIONAL)
         opcode = number % 100
         number //= 100
@@ -68,6 +90,7 @@ class Runner:
         return opcode, argModes
 
     def reset(self):
+        self.relativeBase = 0
         self.inputCursor = 0
         self.output = []
 
@@ -99,3 +122,7 @@ class Runner:
 
     def eq(self, x, y):
         return int(x == y), None
+
+    def adjust_relative_base(self, x):
+        self.relativeBase += x
+        return None, None
