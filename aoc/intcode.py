@@ -42,6 +42,7 @@ class Runner:
     # runs code and yields output values until it halts
     def output_iterator(self, intcode, pointer = 0):
         self.reset()
+        intcode = defaultlist(lambda: Runner.MEMORY_DEFAULT_VALUE, intcode)
         while intcode[pointer] != Runner.HALT:
             intcode, pointer = self.execute(intcode, pointer)
             if self.output:
