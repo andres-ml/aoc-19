@@ -27,6 +27,8 @@ class Point:
     # Access by axis letter. Only supported for 3D or fewer
     def __getattr__(self, letter):
         axisLetters = 'xyz'
+        if letter not in axisLetters:
+            raise AttributeError
         return self.coords[axisLetters.index(letter)]
 
     def manhattan(self, other):
