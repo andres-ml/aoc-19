@@ -2,6 +2,7 @@ from functools import reduce, partial
 from typing import Callable, Union, Any
 import re
 import operator
+import copy
 
 identity = lambda x : x
 always = lambda x : lambda *args : x
@@ -88,6 +89,15 @@ def within(function):
 def chunks(size : int, items : list) -> list :
     return [items[i:i+size] for i in range(0, len(items), size)]
 
+# function that takes an item and returns a copy of that item with one of its properties altered based on its current value
+# altered items must support copying (e.g. in some instances, copying an instance that overrides __getattr__ breaks)
+def alter(property : str, function : Callable) -> Callable:
+    return lambda original: within(lambda copied: setattr(copied, property, function(getattr(copied, property))))(copy.copy(original))
+
+# returns a generator of isolated items and the rest
+# e.g. isolate([1,2,3]) -> (1, (2,3)), (2, (1,3)), (3, (1, 2))
+def isolate(items : list) -> iter:
+    return ((isolated, (other for other in items if other != isolated)) for isolated in items)
     
 # like defaultdict but with a list. Automatically extends the list length with the specified
 # factory() value as many positions as needed when getting or setting positions out of bounds (indices only, not slices)
