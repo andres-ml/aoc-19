@@ -1,18 +1,18 @@
 from utils import cmap, compose, invoker, unpack, at, reduceUntil
 from functools import partial, reduce
-from itertools import permutations
+from itertools import permutations, chain
 from aoc.intcode import Runner
 
 parse = compose(list, cmap(int), invoker('split', ','))
 
 # runs Intcode several times by piping their input/output with [phase[index], previousOutput]
 def runSequence(sequence, intcode, endCondition, startSignal = 0):
-    runners = [Runner([phase]) for phase in sequence]
+    runners = [Runner(iter([phase])) for phase in sequence]
     runnerIterators = [runner.output_iterator(intcode) for runner in runners]
 
     # pipe last signal to current runner's input and add its next output signal to signals
     def step(signals, index):
-        runners[index].input.append(signals[-1])
+        runners[index].feed(signals[-1])
         signal = next(runnerIterators[index], None)
         return signals + [signal], (index + 1) % len(runners)
 

@@ -25,14 +25,14 @@ class Robot:
         self.painted = dict()
 
     def paint_all(self, intcode, grid):
-        self.cpu.input += [self.read(grid)]
+        self.cpu.feed(self.read(grid))
         generator = self.cpu.output_iterator(intcode)
         paired_outputs = zip_longest(*[generator] * 2)
         for color, turn in paired_outputs:
             self.paint_current(grid, color)
             self.velocity.coords = self.turn(turn)
             self.position += self.velocity
-            self.cpu.input += [self.read(grid)]
+            self.cpu.feed(self.read(grid))
 
     def read(self, grid):
         return next(k for k, color in Robot.ColorMap.items() if grid[self.position.coords] == color)

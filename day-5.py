@@ -6,7 +6,7 @@ from aoc.intcode import Runner
 parse = compose(list, cmap(int), invoker('split', ','))
 
 def solve(input, intcode):
-    runner = Runner(input)
+    runner = Runner(iter(input))
     runner.run(intcode)
     return intcode, runner
 

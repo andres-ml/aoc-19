@@ -1,6 +1,7 @@
 from utils import defaultlist
 from inspect import getargspec
 from collections import defaultdict
+from itertools import chain
 
 class Runner:
 
@@ -25,7 +26,7 @@ class Runner:
         9: 'adjust_relative_base',
     }
 
-    def __init__(self, input = []):
+    def __init__(self, input = iter([])):
         self.input = input
         methodArity = lambda method: len(getargspec(getattr(self, method))[0]) - 1
         self.instructionArities = {opcode: methodArity(name) for opcode, name in Runner.opcodeMap.items()}
@@ -92,8 +93,11 @@ class Runner:
 
     def reset(self):
         self.relativeBase = 0
-        self.inputCursor = 0
         self.output = []
+
+    # "appends" a value to the current input iterator
+    def feed(self, value):
+        self.input = chain(self.input, iter([value]))
 
     #####################################  operations ##########################################
     
@@ -104,8 +108,7 @@ class Runner:
         return x * y, None
 
     def read(self):
-        value = self.input[self.inputCursor]
-        self.inputCursor += 1
+        value = next(self.input)
         return value, None
 
     def show(self, x):

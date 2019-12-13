@@ -3,9 +3,11 @@ from typing import Callable, Union, Any
 import re
 import operator
 import copy
+import itertools
 
-identity = lambda x : x
-always = lambda x : lambda *args : x
+identity = lambda x: x
+always = lambda x: lambda *args : x
+sign = lambda n: n // max(1, abs(n))
 
 # function composition. first function may have any arity; the rest must be unary
 def compose(*functions) -> Callable:
@@ -98,6 +100,11 @@ def alter(property : str, function : Callable) -> Callable:
 # e.g. isolate([1,2,3]) -> (1, (2,3)), (2, (1,3)), (3, (1, 2))
 def isolate(items : list) -> iter:
     return ((isolated, (other for other in items if other != isolated)) for isolated in items)
+
+# yields an iterator's value by chunks. E.g:
+# chunk(itertools.count(), 3) -> (1,2,3), (4,5,6), (7,8,9), ...
+def chunk(iterator : iter, size : int) -> iter:
+    return itertools.zip_longest(*([iterator] * size))
     
 # like defaultdict but with a list. Automatically extends the list length with the specified
 # factory() value as many positions as needed when getting or setting positions out of bounds (indices only, not slices)
