@@ -105,6 +105,17 @@ def isolate(items : list) -> iter:
 # chunk(itertools.count(), 3) -> (1,2,3), (4,5,6), (7,8,9), ...
 def chunk(iterator : iter, size : int) -> iter:
     return itertools.zip_longest(*([iterator] * size))
+
+# memoization/caching decorator with default cache support
+# default cache support means you need to call it as @memoize() and not just @memoize
+def memoize(cache={}):
+    def inner(function):
+        def memoized_function(arg):
+            if arg not in cache:
+                cache[arg] = function(arg)
+            return cache[arg]
+        return memoized_function
+    return inner
     
 # like defaultdict but with a list. Automatically extends the list length with the specified
 # factory() value as many positions as needed when getting or setting positions out of bounds (indices only, not slices)
