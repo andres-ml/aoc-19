@@ -32,7 +32,7 @@ def trace(asteroids):
 
     # sort by distance
     for asteroid in asteroids:
-        sortByDistance = compose(Point(*asteroid.coords).manhattan, unpack(Point), attr('coords'))
+        sortByDistance = compose(Point(asteroid.coords).manhattan, Point, attr('coords'))
         for slope in asteroid.traces:
             asteroid.traces[slope] = sorted(asteroid.traces[slope], key=sortByDistance)
         

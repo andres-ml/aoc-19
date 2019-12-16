@@ -9,22 +9,22 @@ import math
 class Body:
 
     def __init__(self, coords):
-        self.position = Point(*coords)
-        self.velocity = Point(*([0] * self.position.dimension))
+        self.position = Point(tuple(coords))
+        self.velocity = Point(tuple([0] * self.position.dimension))
 
 parseBody = compose(Body, cmap(int), partial(re.findall, r'-?\d+'))
 parse = compose(list, cmap(parseBody), toLines)
 
 sign = lambda n: n // max(1, abs(n))
-gravitate = lambda body, towards, velocity: velocity + Point(*(sign(b - a) for a, b in zip(body.position, towards.position)))
+gravitate = lambda body, towards, velocity: velocity + Point(tuple(sign(b - a) for a, b in zip(body.position, towards.position)))
 
 adjust = lambda system: [alter('velocity', compose(*[partial(gravitate, body, other) for other in rest]))(body) for body, rest in isolate(system)]
 move = lambda system: [alter('position', lambda position: position + body.velocity)(body) for body in system]
 step = compose(move, adjust)
 
 energy = compose(sum, cmap(abs))
-potential = compose(energy, attr('coords'), attr('position'))
-kinetic = compose(energy, attr('coords'), attr('velocity'))
+potential = compose(energy, attr('position'))
+kinetic = compose(energy, attr('velocity'))
 total_energy = lambda system: sum(potential(body) * kinetic(body) for body in system)
 
 # We can see that gravity forces among planets affects each axis independently; i.e. the update to each
@@ -34,7 +34,7 @@ total_energy = lambda system: sum(potential(body) * kinetic(body) for body in sy
 def first_repeat(system):
     dimension = system[0].position.dimension
     # serializer of one axis for comparison between system states
-    serialize_axis = lambda system, axis: [body.position.coords[axis] for body in system] + [body.velocity.coords[axis] for body in system]
+    serialize_axis = lambda system, axis: [body.position[axis] for body in system] + [body.velocity[axis] for body in system]
     # we assume the initial state belongs to the repeating cycle and is thus the first state to be eventually repeated
     initial = tuple(serialize_axis(system, axis) for axis in range(dimension))
     # store the cycle length for each axis

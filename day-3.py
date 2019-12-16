@@ -5,7 +5,7 @@ from itertools import product, permutations
 from space import Point
 import re
 
-CENTER = Point(0, 0)
+CENTER = Point((0, 0))
 
 # split input into lines, and each line (a wire) into a series of steps: [{'direction': 'U', 'length': 23}, {'direction' ....}]
 formatStep = compose(dictBuilder({'direction': str, 'length': int}), partial(patternGroups, r'([URDL])(\d+)'))
@@ -22,17 +22,17 @@ def trace(wire):
 # given a wire stretch (e.g. U41) and a starting Point, returns the destination point
 def travel(stretch, origin):
     vector = switch(lambda direction, length: direction, {
-        'U': lambda direction, length: Point(0, length),
-        'R': lambda direction, length: Point(length, 0),
-        'D': lambda direction, length: Point(0, -length),
-        'L': lambda direction, length: Point(-length, 0),
+        'U': lambda direction, length: Point((0, length)),
+        'R': lambda direction, length: Point((length, 0)),
+        'D': lambda direction, length: Point((0, -length)),
+        'L': lambda direction, length: Point((-length, 0)),
     })
-    return Point(*origin) + vector(**stretch)
+    return Point(origin) + vector(**stretch)
 
 # assumes that wire crossing only happens 1 point at a time (i.e. segments in the same line do not intersect, only perpendicular segments do)
 isWithinRange = lambda n, range: range[0] <= n <= range[1] or range[0] >= n >= range[1]
 segmentsCross = lambda a, b: isWithinRange(b[0].x, [a[0].x, a[1].x]) and isWithinRange(a[0].y, [b[0].y, b[1].y])
-segmentIntersection = lambda s1, s2: next((Point(b[0].x, a[0].y) for a, b in permutations([s1, s2]) if segmentsCross(a, b)), None)
+segmentIntersection = lambda s1, s2: next((Point((b[0].x, a[0].y)) for a, b in permutations([s1, s2]) if segmentsCross(a, b)), None)
 
 # finds the lines of each wire and checks if any pair of lines from different wires intersect
 # returns tuples of the form (segment1, segment2, intersection)

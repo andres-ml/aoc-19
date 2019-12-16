@@ -20,8 +20,8 @@ class Robot:
 
     def __init__(self, cpu):
         self.cpu = cpu
-        self.position = Point(0, 0)
-        self.velocity = Point(0, 1)
+        self.position = Point((0, 0))
+        self.velocity = Point((0, 1))
         self.painted = dict()
 
     def paint_all(self, intcode, grid):
@@ -30,23 +30,23 @@ class Robot:
         paired_outputs = zip_longest(*[generator] * 2)
         for color, turn in paired_outputs:
             self.paint_current(grid, color)
-            self.velocity.coords = self.turn(turn)
+            self.velocity = self.turn(turn)
             self.position += self.velocity
             self.cpu.feed(self.read(grid))
 
     def read(self, grid):
-        return next(k for k, color in Robot.ColorMap.items() if grid[self.position.coords] == color)
+        return next(k for k, color in Robot.ColorMap.items() if grid[self.position] == color)
     
     def paint_current(self, grid, color):
-        grid[self.position.coords] = Robot.ColorMap[color]
-        self.painted[self.position.coords] = True
+        grid[self.position] = Robot.ColorMap[color]
+        self.painted[self.position] = True
 
     def turn(self, turn):
-        a, b = self.velocity.coords
+        a, b = self.velocity
         if turn == Robot.LEFT:
-            return (-b, a)
+            return Point((-b, a))
         elif turn == Robot.RIGHT:
-            return (b, -a)
+            return Point((b, -a))
         raise "Invalid turn"
         
 
