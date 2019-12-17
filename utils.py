@@ -121,6 +121,9 @@ def memoize(cache={}):
 def skip(n : int, iterable : iter) -> iter:
     return itertools.islice(iterable, n, None)
     
+def flatten(items : list) -> list:
+    return [x for subitems in items for x in subitems]
+
 # like defaultdict but with a list. Automatically extends the list length with the specified
 # factory() value as many positions as needed when getting or setting positions out of bounds (indices only, not slices)
 class defaultlist(list):
