@@ -98,6 +98,10 @@ class Runner:
     def feed(self, value):
         self.input = chain(self.input, iter([value]))
 
+    @staticmethod
+    def ASCII_input(lines):
+        return (ord(c) for c in '\n'.join(lines) + '\n')
+
     #####################################  operations ##########################################
     
     def add(self, x, y):

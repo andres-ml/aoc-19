@@ -102,16 +102,9 @@ def translate_to_instructions(compression):
     subroutine_to_line = lambda pairs: [str(item) for pair in pairs for item in pair]
     for pairs in compression[1]:
         lines.append(subroutine_to_line(pairs))
-    
     # disable visual feed
     lines.append(['n'])
-
-    text = ''
-    for line in lines:
-        text += ','.join(char for char in line)
-        text += '\n'
-
-    return [ord(c) for c in text]
+    return Runner.ASCII_input([','.join(line) for line in lines])
 
 get_grid = compose(drawing_to_dict, partial(''.join), cmap(chr), draw)
 
@@ -122,8 +115,7 @@ get_instructions = lambda grid: compose(translate_to_instructions, next, partial
 
 def get_dust(intcode):
     grid = get_grid(intcode)
-    instructions = get_instructions(grid)
-    runner = Runner(iter(instructions))
+    runner = Runner(get_instructions(grid))
     runner.run([2] + intcode[1:])
     return runner.output[-1]
 
