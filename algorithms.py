@@ -1,10 +1,12 @@
 from queue import PriorityQueue
 
 def BFS(start, expand):
+    tiebreaker = 0
     queue = PriorityQueue()
-    queue.put((0, start))
+    queue.put((0, tiebreaker, start))
     while not queue.empty():
-        length, current = queue.get()
+        length, _, current = queue.get()
         yield current
         for adjacent in expand(current):
-            queue.put((length + 1, adjacent))
+            tiebreaker += 1
+            queue.put((length + 1, tiebreaker, adjacent))
