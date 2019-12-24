@@ -41,11 +41,14 @@ class Runner:
 
     # runs code and yields output values until it halts
     def output_iterator(self, intcode, pointer = 0):
+        return filter(lambda value: value is not None, self.iterator(intcode, pointer))
+
+    # runs code and yields after every instruction (a value if it was an output instruction, otherwise None)
+    def iterator(self, intcode, pointer = 0):
         self.reset(intcode)
         while self.intcode[pointer] != Runner.HALT:
             self.intcode, pointer = self.execute(self.intcode, pointer)
-            if self.output:
-                yield self.output.pop()
+            yield self.output.pop() if self.output else None
 
     # executes the instruction at pointer
     def execute(self, intcode, pointer):
